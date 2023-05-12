@@ -9,8 +9,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +22,7 @@ I greatly appreciate the opportunity to submit this assessment and look forward 
 P.S. I really wanted to paginate through all result pages, but for the life of me, I could not nail down a consistent locator for the 'Next Page' object.
  */
 
-public class BasePage {
+public class basePage {
     WebDriver driver;
     String url = "https://www.webstaurantstore.com";
     String product = "stainless work table";
@@ -37,7 +35,7 @@ public class BasePage {
     }
 
     @Test
-    public void searchTest() throws InterruptedException {
+    public void searchTest() {
 
         openBrowser(url);
         searchProduct(product);
@@ -54,7 +52,7 @@ public class BasePage {
         driver.quit();
     }
 
-    public void openBrowser(String url) throws InterruptedException {
+    public void openBrowser(String url) {
 
         driver.get(url);
         System.out.println(url + " has been launched");
@@ -89,8 +87,8 @@ public class BasePage {
 
         try {
             // Verify product details for each returned item in the search results page
-            for (int i = 0; i < productDetails.size(); ++i) {
-                Assert.assertTrue(productDetails.get(i).getText().contains(keyword), productDetails.get(i).getText());
+            for (WebElement productDetail : productDetails) {
+                Assert.assertTrue(productDetail.getText().contains(keyword), productDetail.getText());
             }
         } catch (Exception e) {
             System.out.println("A product's details failed to match the desired description");
@@ -99,9 +97,6 @@ public class BasePage {
     }
 
     public void verifyAndPaginateResults(String keyword) {
-        int j = 0;
-
-        List<Object> numOfPages = new ArrayList<>();
 
         // TODO better handle iterating through pages
         while (driver.findElement(By.xpath("//*[contains(@class, 'rounded-r-md')]")).isDisplayed()) {
@@ -112,7 +107,6 @@ public class BasePage {
             nextPage.click();
             // Give the site 3 seconds to load next page
             driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-            ++j;
         }
     }
 
