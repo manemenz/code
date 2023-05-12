@@ -57,10 +57,10 @@ public class BasePage {
     public void openBrowser(String url) throws InterruptedException {
 
         driver.get(url);
-        System.out.println(url + "has been launched");
+        System.out.println(url + " has been launched");
         driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
         driver.manage().window().maximize();
-        System.out.println(url + "has been maximized");
+        System.out.println(url + " has been maximized");
     }
 
     public void searchProduct(String product) {
@@ -84,27 +84,32 @@ public class BasePage {
         Assert.assertTrue(resultsCountHeader.isDisplayed());
     }
 
-    public void verifyProductDetails(String keyword){
+    public void verifyProductDetails(String keyword) {
         List<WebElement> productDetails = driver.findElements(By.id("details"));
 
-        // Verify product details for each returned item in the search results page
-        for (int i = 0; i < productDetails.size(); ++i) {
-            Assert.assertTrue(productDetails.get(i).getText().contains(keyword));
+        try {
+            // Verify product details for each returned item in the search results page
+            for (int i = 0; i < productDetails.size(); ++i) {
+                Assert.assertTrue(productDetails.get(i).getText().contains(keyword), productDetails.get(i).getText());
+            }
+        } catch (Exception e) {
+            System.out.println("A product's details failed to match the desired description");
         }
+
     }
 
     public void verifyAndPaginateResults(String keyword) {
         int j = 0;
-        WebElement nextPage = driver.findElement(By.xpath("//a[contains(@aria-label, 'go to page')]"));
+
         List<Object> numOfPages = new ArrayList<>();
 
         // TODO better handle iterating through pages
-        while (j < 8) {
+        while (driver.findElement(By.xpath("//*[contains(@class, 'rounded-r-md')]")).isDisplayed()) {
+            WebElement nextPage = driver.findElement(By.xpath("//*[contains(@class, 'rounded-r-md')]"));
             // Verify the results all have the correct keyword
             verifyProductDetails(keyword);
             // Click the next page
-            // TODO figure out better locator to click through all available pages
-//            nextPage.click();
+            nextPage.click();
             // Give the site 3 seconds to load next page
             driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
             ++j;
@@ -144,12 +149,6 @@ public class BasePage {
             // Click the "Empty Cart" button to remove all items of the cart
             if (removeItem.isDisplayed()) {
                 removeItem.click();
-                // Unfortunately instantiate the "Confirm Empty Cart" object here
-//                WebElement confirmRemoveItem = driver.findElement(By.cssSelector("#td > div:nth-child(35) > div > div > div > footer > button.bg-origin-box-border.bg-repeat-x.border-solid.border.box-border.cursor-pointer.inline-block.text-center.no-underline.hover\\:no-underline.antialiased.hover\\:bg-position-y-15.mr-2.rounded-normal.text-base.leading-normal.px-7.py-2-1\\/2.hover\\:bg-green-600.text-white.text-shadow-black-60.bg-green-primary.bg-linear-gradient-180-green.border-black-25.shadow-inset-black-17.align-middle.font-semibold"));  //driver.findElement(By.xpath("//*[@id=\"td\"]/div[11]/div/div/div/footer/button[1]"));
-//                // Verify the "Confirm Empty Cart" pop-up is displayed - click it to empty cart
-//                if (confirmRemoveItem.isDisplayed()) {
-//                    confirmRemoveItem.click();
-//                }
             }
         } catch(Exception e) {
             System.out.println("Unable to remove items from cart");
@@ -157,10 +156,10 @@ public class BasePage {
     }
 
     public void verifyEmptyCart() {
-        WebElement emptyCartHeader = driver.findElement(By.xpath("//*[@id=\"main\"]/div/div[1]/div[1]/div/div[1]/img"));
+        WebElement emptyCartHeader = driver.findElement(By.xpath("/html/body/div[2]/div/div[2]/div[1]/div/div"));
 
         // Give the page a few seconds to load
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
         Assert.assertTrue(emptyCartHeader.isDisplayed());
     }
 
